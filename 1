@@ -1,0 +1,157 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <bitset>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+using namespace std;
+
+class zip
+{
+	string str;      // строка из файла
+	string bit_str;  // строка для кодирования/декодирования
+	int z;           // количество дополнительных битов, чтобы записать байт
+public:
+	zip() {}
+	void comp(string input_name, string output_name)
+	{
+		ifstream fin(input_name, std::ios::binary);
+		if (!fin.is_open())
+		{
+			cout << "file is not open" << endl;
+			return;
+		}
+		else
+			cout << "file is open" << endl;
+
+		str.clear();
+		str.append((std::istreambuf_iterator<char>(fin)),
+			std::istreambuf_iterator<char>());
+		cout << str << endl;
+		fin.close();
+
+		// кодирование основной строки str в сторку bit_str
+		encode();
+		bit_str = "1010101111010110100001101";  // Тут надо вставлять входной файл и его переводить его в бинарный код по гамма коду????
+		cout << bit_str.length() << endl;
+		save_bits(output_name);
+	}
+	void encode()
+	{
+		vector<pair<char, size_t>> arr;
+		vector<size_t> freq(128, 0);
+		for (const auto& i : str)
+			++freq[i];
+		for (size_t i = 0; i != freq.size(); i++)
+		{
+			if (freq[i] > 0)
+			{
+				arr.push_back(make_pair(char(i), freq[i]));
+			}
+		}
+
+		sort(arr.begin(), arr.end(),
+			[](const auto& a, const auto& b)
+		{
+			return a.second > b.second;
+		});
+		/*for (const auto& i : arr)
+			cout << i.first << '\t' << i.second << endl;*/
+		for (size_t i = 0; i < arr.size(); i++)
+		{
+			string temp = "";
+			int j = log2(i + 1);
+			for (int x = 0; x < j ; x++)
+			{
+				temp += '0';
+			}
+			bitset<7> bs(i + 1);
+			string t = bs.to_string();
+			t = t.substr(t.find("1"));
+			temp += t;
+			cout << arr[i].first << '\t' << i + 1 << '\t' << temp << endl;
+		}
+	}
+	void save_bits(string output_name)
+	{
+		cout << bit_str << endl;
+		z = 0;
+		while (bit_str.size() % 8)
+		{
+			bit_str.push_back('0');
+			++z;
+		}
+		ofstream fout(output_name, std::ios::binary);
+		bitset<8> bs;
+		for (size_t i = 0; i != bit_str.size();)
+		{
+			for (size_t j = 0; j != bs.size(); j++, i++)
+			{
+				bs[8 - 1 - j] = bit_str[i] == '0' ? 0 : 1;
+			}
+			fout << static_cast<char>(bs.to_ulong());
+		}
+		fout << "zipper" << z ;
+		fout << "]]";
+		fout.close();
+	}
+	void decomp(string input_name, string output_name)
+	{
+		ifstream fin(input_name, std::ios::binary);
+		if (!fin.is_open())
+		{
+			cout << "file is not open" << endl;
+			return;
+		}
+		else
+			cout << "file " << input_name << " is open" << endl;
+
+		str.clear();
+		str.append((std::istreambuf_iterator<char>(fin)),
+			std::istreambuf_iterator<char>());
+		cout << str << endl;
+		fin.close();
+
+		size_t index = str.find("zipper");
+		if (index == string::npos)
+		{
+			cout << "zipper not found" << endl;
+			return;
+		}
+		z = str[index + 6] - '0';
+		cout << "z: " << z << endl;
+		str = str.substr(0, index);
+		// получаем биты из строки str и записываем в bit_str
+		// при этом учитываем z
+		bit_str.clear();
+		for (const auto& i : str)
+		{
+			bitset<8> t(i);
+			bit_str.append(t.to_string());
+		}
+		while (z > 0)
+		{
+			--z;
+			bit_str.pop_back();
+		}
+		cout << bit_str << endl;
+
+		//decode();
+	}
+};
+
+int main()
+{
+
+	zip obj1, obj2;
+	obj1.comp("abc.txt", "compressed.txt");
+	obj2.decomp("compressed.txt", "qwe.txt");
+
+	// 10011101010101010101 -> file (8)
+	// 10011101010101010101 -> str 10011101010101010101
+
+
+	// Как можно реализовать запись всех битов в одну строчку , и у меня почему-то не работает нормально перевод символов по распростаненности в гамма код 
+
+}

@@ -4,6 +4,7 @@
 #include <bitset>
 #include <vector>
 #include <algorithm>
+#include <map>
 #include <cmath>
 using namespace std;
 
@@ -13,7 +14,7 @@ class zip
 	string bit_str;  // строка для кодирования/декодирования
 	int z;           // количество дополнительных битов, чтобы записать байт
 public:
-	zip() {} // что мне тут реализовать ??
+	zip() {}
 	void comp(string input_name, string output_name)
 	{
 		ifstream fin(input_name, std::ios::binary);
@@ -32,12 +33,13 @@ public:
 		fin.close();
 
 		// кодирование основной строки str в сторку bit_str
-		encode();
-		bit_str = "1010101111010110100001101";  // Тут надо вставлять входной файл и его переводить его в бинарный код по гамма коду????
+		encode(string (output_name));
+
 		cout << bit_str.length() << endl;
+		
 		save_bits(output_name);
 	}
-	void encode()
+	void encode(string output_name)
 	{
 		vector<pair<char, size_t>> arr;
 		vector<size_t> freq(128, 0);
@@ -57,7 +59,10 @@ public:
 			return a.second > b.second;
 		});
 		/*for (const auto& i : arr)
-			cout << i.first << '\t' << i.second << endl;*/
+			cout << i.first << '\t' << i.second << endl;
+		cout << "\n";*/
+		string bits = "";
+		map <char, string>dict;
 		for (size_t i = 0; i < arr.size(); i++)
 		{
 			string temp = "";
@@ -66,12 +71,30 @@ public:
 			{
 				temp += '0';
 			}
-			bitset<7> bs(i + 1);
+			bitset<8> bs(i + 1);
 			string t = bs.to_string();
 			t = t.substr(t.find("1"));
 			temp += t;
-			cout << arr[i].first << '\t' << i + 1 << '\t' << temp << endl; // как отсюда можно запомнить значение для того , чтобы вписывать каждое значение в строчку по порядку
+			cout << arr[i].first << '\t' << i + 1 << '\t' << temp << endl;
+			dict[arr[i].first] = temp;
 		}
+		bit_str = "";
+		for (const auto& i : str)
+		{
+			bits += dict[i];
+			bit_str += dict[i];
+		}
+		cout << bits << endl;
+		for (const auto& i : dict)
+			cout << i.first << '\t' << i.second << endl;
+			
+		ofstream fout;
+		fout.open("alphabet.txt");
+		for (const auto& i : dict)
+            fout << i.first << '\t' << i.second << endl;
+		
+
+
 	}
 	void save_bits(string output_name)
 	{
@@ -95,6 +118,7 @@ public:
 		fout << "zipper" << z ;
 		fout << "]]";
 		fout.close();
+		
 	}
 	void decomp(string input_name, string output_name)
 	{
@@ -136,7 +160,8 @@ public:
 			bit_str.pop_back();
 		}
 		cout << bit_str << endl;
-
+		
+		
 		//decode();
 	}
 };
@@ -150,9 +175,4 @@ int main()
 
 	// 10011101010101010101 -> file (8)
 	// 10011101010101010101 -> str 10011101010101010101
-
-
-	// Как можно реализовать запись всех битов в одну строчку?
-	// я не понимаю , какие у меня должны быть дальнейшие действия , даже примерно 
-
 }

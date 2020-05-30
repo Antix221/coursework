@@ -34,10 +34,10 @@ public:
 		fin.close();
 
 		// кодирование основной строки str в сторку bit_str
-		encode(string (output_name));
+		encode(string(output_name));
 
 		cout << bit_str.length() << endl;
-		
+
 		save_bits(output_name);
 	}
 	void encode(string output_name)
@@ -50,7 +50,7 @@ public:
 		{
 			if (freq[i] > 0)
 			{
-				arr.push_back(make_pair(char(i), freq[i]));  
+				arr.push_back(make_pair(char(i), freq[i]));
 			}
 		}
 
@@ -70,7 +70,7 @@ public:
 		{
 			string temp = "";
 			int j = log2(i + 1);
-			for (int x = 0; x < j ; x++)
+			for (int x = 0; x < j; x++)
 			{
 				temp += '0';
 			}
@@ -91,12 +91,12 @@ public:
 		cout << bits << endl;
 		for (const auto& i : dict)
 			cout << i.first << '\t' << i.second << endl;
-			
+
 		/*ofstream fout;
 		fout.open("alphabet.txt");
 		for (const auto& i : dict)
-            fout << i.first ;*/
-		
+			fout << i.first ;*/
+
 
 
 	}
@@ -119,10 +119,10 @@ public:
 			}
 			fout << static_cast<char>(bs.to_ulong());
 		}
-		fout << "zipper" << z ;
+		fout << "zipper" << z;
 		fout << "]]";
 		fout.close();
-		
+
 	}
 	void decomp(string input_name, string output_name)
 	{
@@ -164,9 +164,30 @@ public:
 			bit_str.pop_back();
 		}
 		cout << bit_str << endl;
-		
-		
+
+
 		decode();
+	}
+	
+	///
+	/// заполняет словарь d кодами elias gamma code по строке f
+	void fill_dic(map <string, char>&d,string f)
+	{
+		for (int i = 0; i < f.length(); i++)
+		{
+			string tempa = "";
+			int j = log2(i + 1);
+			for (int x = 0; x < j; x++)
+			{
+				tempa += '0';
+			}
+			bitset<8> bst(i + 1);
+			string t = bst.to_string();
+			t = t.substr(t.find("1"));
+			tempa += t;
+			d[tempa] = f[i];
+
+		}
 	}
 	void decode()
 	{
@@ -178,16 +199,17 @@ public:
 			std::istreambuf_iterator<char>());
 		
 
+
 		vector<pair<char, size_t>> array;
 		vector<size_t> freqa(128, 0);
-		
+
 		if (!destr.is_open())
 		{
 			cout << " I don't see the alphabet " << endl;
 		}
 		else
 		{
-			for (const auto& i : stroka)
+			/*for (const auto& i : stroka)
 				++freqa[i];
 			for (size_t i = 0; i != freqa.size(); i++)
 			{
@@ -195,26 +217,32 @@ public:
 				{
 					array.push_back(make_pair(char(i), freqa[i]));
 				}
-			}
-		cout << "file " << "alphabet.txt" << " is open" << endl;
-		cout << stroka << endl;
+			}*/
 
-			map <char, string> dect;
-			for (size_t i = 0; i < array.size(); i++)
+			cout << "file " << "alphabet.txt" << " is open" << endl;
+			cout << stroka << endl;
+
+			map <string, char> dic;
+			//// заполняет словарь dic кодами elias gamma code по строке 
+			fill_dic(dic, stroka);
+			
+			//пока строка кодирование не пуста 
+			while (bit_str.length())
 			{
-				string tempa = "";
-				int j = log2(i + 1);
-				for (int x = 0; x < j; x++)
+				int len = 1;
+				string code = bit_str.substr(0,len);
+				// читаем префикс строки bit_str пока не найдем код в словаре 
+				while (dic.find(code) == dic.end())
 				{
-					tempa += '0';
+					len += 2;
+					code = bit_str.substr(0,len);
 				}
-				bitset<8> bst(i + 1);
-				string t = bst.to_string();
-				t = t.substr(t.find("1"));
-				tempa += t;
-				cout << array[i].first << '\t' << i + 1 << '\t' << tempa << endl;
-				dect[array[i].first] = tempa;
+				cout << dic[code];
+				// убираем найденый код из строки
+				bit_str = bit_str.substr(len, bit_str.size() - len);
 			}
+			cout << endl;
+
 		}
 		destr.close();
 
@@ -223,7 +251,10 @@ public:
 
 int main()
 {
-
+	/*zip z;
+	map <string, char> m;
+	z.fill_dic(m, "12345678");*/
+	//return 0;
 	zip obj1, obj2;
 	obj1.comp("abc.txt", "compressed.txt");
 	obj2.decomp("compressed.txt", "qwe.txt");

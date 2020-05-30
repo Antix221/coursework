@@ -13,7 +13,8 @@ class zip
 	string str;      // строка из файла
 	string bit_str;  // строка для кодирования/декодирования
 	int z;           // количество дополнительных битов, чтобы записать байт
-	string stroka;
+	string stroka;   // строка словаря
+	
 public:
 	zip() {}
 	void comp(string input_name, string output_name)
@@ -209,19 +210,8 @@ public:
 		}
 		else
 		{
-			/*for (const auto& i : stroka)
-				++freqa[i];
-			for (size_t i = 0; i != freqa.size(); i++)
-			{
-				if (freqa[i] > 0)
-				{
-					array.push_back(make_pair(char(i), freqa[i]));
-				}
-			}*/
-
 			cout << "file " << "alphabet.txt" << " is open" << endl;
 			cout << stroka << endl;
-
 			map <string, char> dic;
 			//// заполняет словарь dic кодами elias gamma code по строке 
 			fill_dic(dic, stroka);
@@ -251,13 +241,53 @@ public:
 
 int main()
 {
-	/*zip z;
-	map <string, char> m;
-	z.fill_dic(m, "12345678");*/
-	//return 0;
+	cout << "This is Elias gamma coding compressor for ASCII text files." << endl;
+	cout << "General options:" << endl;
+	cout << "-c [ --compress ] " << " Compress file (-c init.txt output.compressed)" << endl;
+	cout << "-d [ --decompress ] " << " Decompress file (-d output.compressed check.txt)" << endl;
+	cout << "-h [ --help ] " << " Show help" << endl;
+	cout << "" << "" << endl;
+	cout << "Show me the path to your file" << endl;
+	string path;     // путь к файлу для кодирования
+	cin >> path;
 	zip obj1, obj2;
-	obj1.comp("abc.txt", "compressed.txt");
-	obj2.decomp("compressed.txt", "qwe.txt");
+	/*obj1.comp(path, "compressed.txt");
+	obj2.decomp("compressed.txt", "qwe.txt");*/
+	cout << "- ";
+	char cases;
+	cin >> cases;
+	for (;;)
+	{
+		switch (cases)
+		{
+		case 'c':
+			obj1.comp(path, "compressed.txt");
+			getchar();
+			return 0;
+			break;
+		case 'd':
+			obj2.decomp("compressed.txt", "qwe.txt");
+			getchar();
+			return 0;
+			break;
+		case 'h':
+			cout << "This is Elias gamma coding compressor for ASCII text files." << endl;
+			cout << "General options:" << endl;
+			cout << "-c [ --compress ] " << " Compress file (-c init.txt output.compressed)" << endl;
+			cout << "-d [ --decompress ] " << " Decompress file (-d output.compressed check.txt)" << endl;
+			cout << "-h [ --help ] " << " Show help" << endl;
+			getchar();
+			return 0;
+			break;
+
+		default:
+			cout << "You entered irregular symbol " << endl;
+			getchar();
+			break;
+		}
+	}
+	
+	getchar();
 
 	// 10011101010101010101 -> file (8)
 	// 10011101010101010101 -> str 10011101010101010101

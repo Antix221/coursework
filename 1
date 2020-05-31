@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <map>
 #include <cmath>
+#include <conio.h>
+
 using namespace std;
 
 class zip
@@ -37,8 +39,8 @@ public:
 		// кодирование основной строки str в сторку bit_str
 		encode(string(output_name));
 
-		cout << bit_str.length() << endl;
-
+		cout <<"bits : " <<bit_str.length() << endl;
+		cout << "coded : ";
 		save_bits(output_name);
 	}
 	void encode(string output_name)
@@ -79,7 +81,7 @@ public:
 			string t = bs.to_string();
 			t = t.substr(t.find("1"));
 			temp += t;
-			cout << arr[i].first << '\t' << i + 1 << '\t' << temp << endl;
+			//cout << arr[i].first << '\t' << i + 1 << '\t' << temp << endl;
 			dict[arr[i].first] = temp;
 			fout << arr[i].first;
 		}
@@ -89,9 +91,9 @@ public:
 			bits += dict[i];
 			bit_str += dict[i];
 		}
-		cout << bits << endl;
+		/*cout << bits << endl;
 		for (const auto& i : dict)
-			cout << i.first << '\t' << i.second << endl;
+			cout << i.first << '\t' << i.second << endl;*/
 
 		/*ofstream fout;
 		fout.open("alphabet.txt");
@@ -149,7 +151,7 @@ public:
 			return;
 		}
 		z = str[index + 6] - '0';
-		cout << "z: " << z << endl;
+		//cout << "z: " << z << endl;
 		str = str.substr(0, index);
 		// получаем биты из строки str и записываем в bit_str
 		// при этом учитываем z
@@ -211,12 +213,13 @@ public:
 		else
 		{
 			cout << "file " << "alphabet.txt" << " is open" << endl;
-			cout << stroka << endl;
+			cout << "new alphabet : "<<stroka << endl;
 			map <string, char> dic;
 			//// заполняет словарь dic кодами elias gamma code по строке 
 			fill_dic(dic, stroka);
 			
 			//пока строка кодирование не пуста 
+			cout << "decoded : ";
 			while (bit_str.length())
 			{
 				int len = 1;
@@ -242,53 +245,52 @@ public:
 int main()
 {
 	cout << "This is Elias gamma coding compressor for ASCII text files." << endl;
-	cout << "General options:" << endl;
-	cout << "-c [ --compress ] " << " Compress file (-c init.txt output.compressed)" << endl;
-	cout << "-d [ --decompress ] " << " Decompress file (-d output.compressed check.txt)" << endl;
-	cout << "-h [ --help ] " << " Show help" << endl;
-	cout << "" << "" << endl;
 	cout << "Show me the path to your file" << endl;
 	string path;     // путь к файлу для кодирования
 	cin >> path;
+
+	cout << "Tap 'h' " << " to show instructions" << endl;
 	zip obj1, obj2;
 	/*obj1.comp(path, "compressed.txt");
 	obj2.decomp("compressed.txt", "qwe.txt");*/
-	cout << "- ";
+	
 	char cases;
-	cin >> cases;
-	for (;;)
+	
+	for(;;)
 	{
+		cout << "- ";
+		cin >> cases;
+
 		switch (cases)
 		{
 		case 'c':
 			obj1.comp(path, "compressed.txt");
 			getchar();
-			return 0;
 			break;
 		case 'd':
 			obj2.decomp("compressed.txt", "qwe.txt");
 			getchar();
-			return 0;
-			break;
+			
+		break;
 		case 'h':
 			cout << "This is Elias gamma coding compressor for ASCII text files." << endl;
 			cout << "General options:" << endl;
 			cout << "-c [ --compress ] " << " Compress file (-c init.txt output.compressed)" << endl;
 			cout << "-d [ --decompress ] " << " Decompress file (-d output.compressed check.txt)" << endl;
 			cout << "-h [ --help ] " << " Show help" << endl;
+			cout << "-o [ -- out ] " << " Out of the program" << endl;
 			getchar();
-			return 0;
 			break;
-
+		case 'o':
+			exit(1);
+			break;
 		default:
 			cout << "You entered irregular symbol " << endl;
-			getchar();
-			break;
+			cin.get();
 		}
-	}
+		
+	} 
 	
-	getchar();
-
 	// 10011101010101010101 -> file (8)
 	// 10011101010101010101 -> str 10011101010101010101
 }

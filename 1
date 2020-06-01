@@ -29,19 +29,20 @@ public:
 		}
 		else
 			cout << "file is open" << endl;
-
+		
 		str.clear();
 		str.append((std::istreambuf_iterator<char>(fin)),
 			std::istreambuf_iterator<char>());
-		cout << str << endl;
+		//cout << str << endl;
 		fin.close();
 
 		// кодирование основной строки str в сторку bit_str
 		encode(string(output_name));
 
-		cout <<"bits : " <<bit_str.length() << endl;
-		cout << "coded : ";
+		//cout <<"bits : " <<bit_str.length() << endl;
+		//cout << "coded : ";
 		save_bits(output_name);
+		
 	}
 	void encode(string output_name)
 	{
@@ -62,9 +63,6 @@ public:
 		{
 			return a.second > b.second;
 		});
-		/*for (const auto& i : arr)
-			cout << i.first << '\t' << i.second << endl;
-		cout << "\n";*/
 		ofstream fout;
 		fout.open("alphabet.txt");
 		string bits = "";
@@ -105,7 +103,7 @@ public:
 	}
 	void save_bits(string output_name)
 	{
-		cout << bit_str << endl;
+		//cout << bit_str << endl;
 		z = 0;
 		while (bit_str.size() % 8)
 		{
@@ -127,6 +125,32 @@ public:
 		fout.close();
 
 	}
+	void size_file(string output_name)
+	{
+		fstream file(output_name);
+		int size = 0;
+		file.seekg(0, std::ios::end);
+		size = file.tellg();
+		cout << size << " bytes";
+		file.close();
+		
+	}
+	void size_files(string output_name, string input_name)
+	{
+
+		fstream file(output_name);
+		double size = 0;
+		file.seekg(0, std::ios::end);
+		size = file.tellg();
+		file.close();
+		fstream file2(input_name);
+		double size1 = 0;
+		file2.seekg(0, std::ios::end);
+		size1 = file2.tellg();
+		file2.close();
+		
+		cout << size / size1;
+	}
 	void decomp(string input_name, string output_name)
 	{
 		ifstream fin(input_name, std::ios::binary);
@@ -141,7 +165,7 @@ public:
 		str.clear();
 		str.append((std::istreambuf_iterator<char>(fin)),
 			std::istreambuf_iterator<char>());
-		cout << str << endl;
+		//cout << str << endl;
 		fin.close();
 
 		size_t index = str.find("zipper");
@@ -166,10 +190,10 @@ public:
 			--z;
 			bit_str.pop_back();
 		}
-		cout << bit_str << endl;
+		//cout << bit_str << endl;
 
 
-		decode();
+		decode(output_name);
 	}
 	
 	///
@@ -192,7 +216,7 @@ public:
 
 		}
 	}
-	void decode()
+	void decode(string output_name)
 	{
 
 		ifstream destr;
@@ -201,7 +225,8 @@ public:
 		stroka.append((std::istreambuf_iterator<char>(destr)),
 			std::istreambuf_iterator<char>());
 		
-
+		ofstream fout;
+		fout.open("decompressed.txt");
 
 		vector<pair<char, size_t>> array;
 		vector<size_t> freqa(128, 0);
@@ -212,14 +237,14 @@ public:
 		}
 		else
 		{
-			cout << "file " << "alphabet.txt" << " is open" << endl;
-			cout << "new alphabet : "<<stroka << endl;
+			//cout << "file " << "alphabet.txt" << " is open" << endl;
+			//cout << "new alphabet : "<<stroka << endl;
 			map <string, char> dic;
 			//// заполняет словарь dic кодами elias gamma code по строке 
 			fill_dic(dic, stroka);
 			
 			//пока строка кодирование не пуста 
-			cout << "decoded : ";
+			//cout << "decoded : ";
 			while (bit_str.length())
 			{
 				int len = 1;
@@ -230,30 +255,30 @@ public:
 					len += 2;
 					code = bit_str.substr(0,len);
 				}
-				cout << dic[code];
+				//cout << dic[code];
+				fout << dic[code];
+				
 				// убираем найденый код из строки
 				bit_str = bit_str.substr(len, bit_str.size() - len);
 			}
-			cout << endl;
-
+			//cout << endl;
+			
 		}
 		destr.close();
-
+		fout.close();
 	}
 };
 
 int main()
 {
+	cout << "$ mycompressor.exe - h:" << endl;
 	cout << "This is Elias gamma coding compressor for ASCII text files." << endl;
-	cout << "Show me the path to your file" << endl;
+	cout << "General options: " << endl;
+	cout << " -c [ --compress ]          Compress file (-c init.txt output.compressed)" << endl;
+	cout << " -d [ --decompress ]        Decompress file (-d output.compressed check.txt) " << endl;
+	cout << " -h [ --help ]              Show help " << endl;
 	string path;     // путь к файлу для кодирования
-	cin >> path;
-
-	cout << "Tap 'h' " << " to show instructions" << endl;
 	zip obj1, obj2;
-	/*obj1.comp(path, "compressed.txt");
-	obj2.decomp("compressed.txt", "qwe.txt");*/
-	
 	char cases;
 	
 	for(;;)
@@ -264,16 +289,27 @@ int main()
 		switch (cases)
 		{
 		case 'c':
+			cout << "Enter the file name : " ;
+			cin >> path;
+			cout << "" << endl;
 			obj1.comp(path, "compressed.txt");
+			cout << "file compressed to 'compressed.txt'" << endl;
+			cout << "Compression ratio - ";
+			obj1.size_file(path);
+			cout << "/";
+			obj1.size_file("compressed.txt");
+			cout << " = " ;
+			obj1.size_files(path, "compressed.txt");
+			cout << endl;
 			getchar();
 			break;
 		case 'd':
 			obj2.decomp("compressed.txt", "qwe.txt");
+			cout << "file decompressed to decompressed.txt " << endl;
 			getchar();
 			
 		break;
 		case 'h':
-			cout << "This is Elias gamma coding compressor for ASCII text files." << endl;
 			cout << "General options:" << endl;
 			cout << "-c [ --compress ] " << " Compress file (-c init.txt output.compressed)" << endl;
 			cout << "-d [ --decompress ] " << " Decompress file (-d output.compressed check.txt)" << endl;
